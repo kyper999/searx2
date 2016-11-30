@@ -1,9 +1,17 @@
 import re
+import sys
 from collections import defaultdict
 from operator import itemgetter
 from threading import RLock
-from urlparse import urlparse, unquote
 from searx.engines import engines
+
+try:
+    from urlparse import urlparse, unquote
+except:
+    from urllib.parse import urlparse, unquote
+
+if sys.version_info[0] == 3:
+    basestring = str
 
 CONTENT_LEN_IGNORED_CHARS_REGEX = re.compile(r'[,;:!?\./\\\\ ()-_]', re.M | re.U)
 WHITESPACE_REGEX = re.compile('( |\t|\n)+', re.M | re.U)

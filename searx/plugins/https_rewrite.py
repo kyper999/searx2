@@ -16,7 +16,7 @@ along with searx. If not, see < http://www.gnu.org/licenses/ >.
 '''
 
 import re
-from urlparse import urlparse
+import sys
 from lxml import etree
 from os import listdir, environ
 from os.path import isfile, isdir, join
@@ -24,6 +24,13 @@ from searx.plugins import logger
 from flask_babel import gettext
 from searx import searx_dir
 
+try:
+    from urlparse import urlparse
+except:
+    from urllib.parse import urlparse
+
+if sys.version_info[0] == 3:
+    unicode = str
 
 name = "HTTPS rewrite"
 description = gettext('Rewrite HTTP links to HTTPS if possible')

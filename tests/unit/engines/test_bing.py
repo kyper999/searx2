@@ -7,11 +7,11 @@ from searx.testing import SearxTestCase
 class TestBingEngine(SearxTestCase):
 
     def test_request(self):
-        query = 'test_query'
+        query = u'test_query'
         dicto = defaultdict(dict)
         dicto['pageno'] = 0
         dicto['language'] = 'fr_FR'
-        params = bing.request(query, dicto)
+        params = bing.request(query.encode('utf-8'), dicto)
         self.assertTrue('url' in params)
         self.assertTrue(query in params['url'])
         self.assertTrue('language%3AFR' in params['url'])

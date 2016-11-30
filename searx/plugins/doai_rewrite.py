@@ -1,6 +1,10 @@
 from flask_babel import gettext
 import re
-from urlparse import urlparse, parse_qsl
+
+try:
+    from urlparse import urlparse, parse_qsl
+except:
+    from urllib.parse import urlparse, parse_qsl
 
 regex = re.compile(r'10\.\d{4,9}/[^\s]+')
 

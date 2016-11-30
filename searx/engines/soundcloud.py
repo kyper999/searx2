@@ -11,13 +11,17 @@
 """
 
 import re
-from StringIO import StringIO
 from json import loads
-from lxml import etree
-from urllib import urlencode, quote_plus
+from lxml import html
 from dateutil import parser
 from searx import logger
 from searx.poolrequests import get as http_get
+from searx.url_utils import quote_plus, urlencode
+
+try:
+    from StringIO import StringIO
+except:
+    from io import StringIO
 
 # engine dependent config
 categories = ['music']
@@ -42,7 +46,7 @@ def get_client_id():
     rx_namespace = {"re": "http://exslt.org/regular-expressions"}
 
     if response.ok:
-        tree = etree.parse(StringIO(response.content), etree.HTMLParser())
+        tree = html.fromstring(response.content)
         script_tags = tree.xpath("//script[re:match(@src, '(.*app.*js)')]", namespaces=rx_namespace)
         app_js_urls = [script_tag.get('src') for script_tag in script_tags if script_tag is not None]
 
@@ -51,7 +55,7 @@ def get_client_id():
             # gets app_js and searches for the clientid
             response = http_get(app_js_url)
             if response.ok:
-                cids = re.search(r'client_id:"([^"]*)"', response.content, re.M | re.I)
+                cids = re.search(r'client_id:"([^"]*)"', response.text, re.M | re.I)
                 if cids is not None and len(cids.groups()):
                     return cids.groups()[0]
     logger.warning("Unable to fetch guest client_id from SoundCloud, check parser!")

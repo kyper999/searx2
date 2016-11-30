@@ -22,7 +22,6 @@ if __name__ == '__main__':
     from os.path import realpath, dirname
     path.append(realpath(dirname(realpath(__file__)) + '/../'))
 
-import cStringIO
 import hashlib
 import hmac
 import json
@@ -42,8 +41,6 @@ except:
     exit(1)
 from cgi import escape
 from datetime import datetime, timedelta
-from urllib import urlencode
-from urlparse import urlparse, urljoin
 from werkzeug.contrib.fixers import ProxyFix
 from flask import (
     Flask, request, render_template, url_for, Response, make_response,
@@ -77,6 +74,16 @@ try:
 except ImportError:
     logger.critical("The pyopenssl package has to be installed.\n"
                     "Some HTTPS connections will fail")
+try:
+    from urllib import urlencode
+    from urlparse import urlparse, urljoin
+except:
+    from urllib.parse import urlencode, urlparse, urljoin
+
+try:
+    from cStringIO import StringIO
+except:
+    from io import StringIO
 
 # serve pages with HTTP/1.1
 from werkzeug.serving import WSGIRequestHandler
@@ -375,7 +382,7 @@ def render(template_name, override_theme=None, **kwargs):
 def pre_request():
     request.errors = []
 
-    preferences = Preferences(themes, categories.keys(), engines, plugins)
+    preferences = Preferences(themes, list(categories.keys()), engines, plugins)
     request.preferences = preferences
     try:
         preferences.parse_cookies(request.cookies)
@@ -479,10 +486,8 @@ def index():
     for result in results:
         if output_format == 'html':
             if 'content' in result and result['content']:
-                result['content'] = highlight_content(escape(result['content'][:1024]),
-                                                      search_query.query.encode('utf-8'))
-            result['title'] = highlight_content(escape(result['title'] or u''),
-                                                search_query.query.encode('utf-8'))
+                result['content'] = highlight_content(escape(result['content'][:1024]), search_query.query)
+            result['title'] = highlight_content(escape(result['title'] or u''), search_query.query)
         else:
             if result.get('content'):
                 result['content'] = html_to_text(result['content']).strip()
@@ -510,7 +515,7 @@ def index():
                     result['publishedDate'] = format_date(result['publishedDate'])
 
     if output_format == 'json':
-        return Response(json.dumps({'query': search_query.query,
+        return Response(json.dumps({'query': search_query.query.decode('utf-8'),
                                     'number_of_results': number_of_results,
                                     'results': results,
                                     'answers': list(result_container.answers),
@@ -519,7 +524,7 @@ def index():
                                     'suggestions': list(result_container.suggestions)}),
                         mimetype='application/json')
     elif output_format == 'csv':
-        csv = UnicodeWriter(cStringIO.StringIO())
+        csv = UnicodeWriter(StringIO())
         keys = ('title', 'url', 'content', 'host', 'engine', 'score')
         csv.writerow(keys)
         for row in results:
@@ -527,7 +532,7 @@ def index():
             csv.writerow([row.get(key, '') for key in keys])
         csv.stream.seek(0)
         response = Response(csv.stream.read(), mimetype='application/csv')
-        cont_disp = 'attachment;Filename=searx_-_{0}.csv'.format(search_query.query.encode('utf-8'))
+        cont_disp = 'attachment;Filename=searx_-_{0}.csv'.format(search_query.query)
         response.headers.add('Content-Disposition', cont_disp)
         return response
     elif output_format == 'rss':
@@ -578,7 +583,7 @@ def autocompleter():
     disabled_engines = request.preferences.engines.get_disabled()
 
     # parse query
-    raw_text_query = RawTextQuery(request.form.get('q', '').encode('utf-8'), disabled_engines)
+    raw_text_query = RawTextQuery(request.form.get('q', u'').encode('utf-8'), disabled_engines)
     raw_text_query.parse_query()
 
     # check if search query is set

@@ -62,7 +62,7 @@ class SearxRobotLayer(Layer):
         del os.environ['SEARX_SETTINGS_PATH']
 
 
-SEARXROBOTLAYER = SearxRobotLayer()
+# SEARXROBOTLAYER = SearxRobotLayer()
 
 
 class SearxTestCase(TestCase):

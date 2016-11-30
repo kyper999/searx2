@@ -10,10 +10,15 @@
  @parse       url, title, content, magnetlink
 """
 
-from urlparse import urljoin
 from lxml import html
 from searx.engines.xpath import extract_text
 from searx.utils import get_torrent_size
+
+try:
+    from urlparse import urljoin
+except:
+    unicode = str
+    from urllib.parse import urljoin
 
 categories = ['videos', 'music', 'files']
 paging = True
@@ -31,7 +36,7 @@ def request(query, params):
 
 
 def response(resp):
-    dom = html.fromstring(resp.content)
+    dom = html.fromstring(resp.text)
     search_res = dom.xpath('.//td[@class="x-item"]')
 
     if not search_res:
