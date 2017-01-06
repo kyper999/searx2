@@ -52,7 +52,7 @@ class RawTextQuery(object):
         self.query_parts = []
 
         # split query, including whitespaces
-        raw_query_parts = re.split(b'(\\s+)', self.query)
+        raw_query_parts = re.split(r'(\s+)', self.query)
 
         parse_next = True
 
