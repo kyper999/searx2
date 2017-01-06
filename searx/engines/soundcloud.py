@@ -19,7 +19,7 @@ from searx.poolrequests import get as http_get
 from searx.url_utils import quote_plus, urlencode
 
 try:
-    from StringIO import StringIO
+    from cStringIO import StringIO
 except:
     from io import StringIO
 
@@ -40,14 +40,15 @@ embedded_url = '<iframe width="100%" height="166" ' +\
     'scrolling="no" frameborder="no" ' +\
     'data-src="https://w.soundcloud.com/player/?url={uri}"></iframe>'
 
+cid_re = re.compile(r'client_id:"([^"]*)"', re.I | re.U)
+
 
 def get_client_id():
     response = http_get("https://soundcloud.com")
-    rx_namespace = {"re": "http://exslt.org/regular-expressions"}
 
     if response.ok:
         tree = html.fromstring(response.content)
-        script_tags = tree.xpath("//script[re:match(@src, '(.*app.*js)')]", namespaces=rx_namespace)
+        script_tags = tree.xpath("//script[contains(@src, '/assets/app')]")
         app_js_urls = [script_tag.get('src') for script_tag in script_tags if script_tag is not None]
 
         # extracts valid app_js urls from soundcloud.com content
@@ -55,7 +56,7 @@ def get_client_id():
             # gets app_js and searches for the clientid
             response = http_get(app_js_url)
             if response.ok:
-                cids = re.search(r'client_id:"([^"]*)"', response.text, re.M | re.I)
+                cids = cid_re.search(response.text)
                 if cids is not None and len(cids.groups()):
                     return cids.groups()[0]
     logger.warning("Unable to fetch guest client_id from SoundCloud, check parser!")
