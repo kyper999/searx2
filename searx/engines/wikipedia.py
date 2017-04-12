@@ -42,7 +42,7 @@ def url_lang(lang):
 # do search-request
 def request(query, params):
     if query.islower():
-        query = u'{0}|{1}'.format(query, query.title())
+        query = u'{0}|{1}'.format(query.decode('utf-8'), query.decode('utf-8').title()).encode('utf-8')
 
     params['url'] = search_url.format(query=urlencode({'titles': query}),
                                       language=url_lang(params['language']))
@@ -98,8 +98,6 @@ def response(resp):
     extract = page.get('extract')
 
     summary = extract_first_paragraph(extract, title, image)
-    if not summary:
-        return []
 
     # link to wikipedia article
     wikipedia_link = base_url.format(language=url_lang(resp.search_params['language'])) \
