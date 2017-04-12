@@ -28,7 +28,7 @@ import sys
 if sys.version_info[0] == 3:
     unicode = str
 
-VALID_LANGUAGE_CODE = re.compile(b'^[a-z]{2,3}(\\-[a-zA-Z]{2})?$')
+VALID_LANGUAGE_CODE = re.compile(r'^[a-z]{2,3}(\-[a-zA-Z]{2})?$')
 
 
 class RawTextQuery(object):
