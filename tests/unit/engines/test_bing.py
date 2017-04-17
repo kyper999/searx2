@@ -18,7 +18,7 @@ class TestBingEngine(SearxTestCase):
         self.assertTrue('bing.com' in params['url'])
 
         dicto['language'] = 'all'
-        params = bing.request(query, dicto)
+        params = bing.request(query.encode('utf-8'), dicto)
         self.assertTrue('language' in params['url'])
 
     def test_response(self):
