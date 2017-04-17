@@ -26,6 +26,8 @@ import hashlib
 import hmac
 import json
 import os
+import sys
+
 import requests
 
 from searx import logger
@@ -84,6 +86,10 @@ try:
     from cStringIO import StringIO
 except:
     from io import StringIO
+
+
+if sys.version_info[0] == 3:
+    unicode = str
 
 # serve pages with HTTP/1.1
 from werkzeug.serving import WSGIRequestHandler
@@ -363,6 +369,8 @@ def render(template_name, override_theme=None, **kwargs):
     kwargs['instance_name'] = settings['general']['instance_name']
 
     kwargs['results_on_new_tab'] = request.preferences.get_value('results_on_new_tab')
+
+    kwargs['unicode'] = unicode
 
     kwargs['scripts'] = set()
     for plugin in request.user_plugins:
