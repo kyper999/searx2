@@ -38,7 +38,7 @@ class Setting(object):
         return self.value
 
     def save(self, name, resp):
-        resp.set_cookie(name, bytes(self.value, 'utf-8'), max_age=COOKIE_MAX_AGE)
+        resp.set_cookie(name, self.value, max_age=COOKIE_MAX_AGE)
 
 
 class StringSetting(Setting):
@@ -133,7 +133,7 @@ class MapSetting(Setting):
 
     def save(self, name, resp):
         if hasattr(self, 'key'):
-            resp.set_cookie(name, bytes(self.key, 'utf-8'), max_age=COOKIE_MAX_AGE)
+            resp.set_cookie(name, self.key, max_age=COOKIE_MAX_AGE)
 
 
 class SwitchableSetting(Setting):
