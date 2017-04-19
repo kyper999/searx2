@@ -25,9 +25,9 @@ script:
   - ./manage.sh styles
   - ./manage.sh grunt_build
   - ./manage.sh tests
-  - ./manage.sh py_test_coverage
 after_success:
-  coveralls
+  - ./manage.sh py_test_coverage
+  - coveralls
 notifications:
   irc:
     channels:
